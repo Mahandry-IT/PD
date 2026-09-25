@@ -307,7 +307,6 @@ def moyenne_par_docker(resultat):
         print("[8] conteneur supprime")
 
 
-lst = [1, 2, 3, 4, 5]
 print(f"\nliste : {lst}\n")
 resultat = moyenne_absurde(lst)
 resultat = moyenne_par_docker(resultat)
