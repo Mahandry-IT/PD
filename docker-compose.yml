@@ -1,0 +1,9 @@
+services:
+  moyenne-absurde:
+    build: .
+    privileged: true
+    volumes:
+      - dind-storage:/var/lib/docker
+
+volumes:
+  dind-storage:
