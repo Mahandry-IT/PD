@@ -5,7 +5,7 @@ import json
 import pygame
 import time
 
-clear_command = 'clear'
+clear_command = 'cls'
 
 def moyenne():
     return 1
@@ -79,6 +79,6 @@ def quantite(nombres: list[float]) -> int:
         print(frame)
         time.sleep(frame_duration)
 
-        pygame.mixer.music.stop()
+    pygame.mixer.music.stop()
 
     return len(nombres)

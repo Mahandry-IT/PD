@@ -306,9 +306,17 @@ def moyenne_par_docker(resultat):
         subprocess.run(["docker", "rm", "-f", CONTENEUR], capture_output=True)
         print("[8] conteneur supprime")
 
+# =========================================================================
+# Fonction 4 : minimum -> tri par tirage aleatoire jusqu'a tomber juste
+# =========================================================================
 
-print(f"\nliste : {lst}\n")
-resultat = moyenne_absurde(lst)
-resultat = moyenne_par_docker(resultat)
-print(f"\nresultat : {resultat}")
-print(f"attendu  : {sum(lst) / len(lst)}")
+import random
+
+
+def min(L, essai=1):
+    L = list(L)
+    random.shuffle(L)
+    print(f"essai {essai} : {L}")
+    if all(L[i] <= L[i + 1] for i in range(len(L) - 1)):
+        return L[0]
+    return min(L, essai + 1)
