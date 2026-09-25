@@ -3,6 +3,9 @@ services:
     build: .
     environment:
       REDIS_HOST: redis
+      ILIAN_MOYENNE_FILE: /app/ilian.py
+    volumes:
+      - ../../ilian.py:/app/ilian.py:ro
     depends_on:
       - redis
     networks:
@@ -12,6 +15,9 @@ services:
     build: .
     environment:
       REDIS_HOST: redis
+      ILIAN_MOYENNE_FILE: /app/ilian.py
+    volumes:
+      - ../../ilian.py:/app/ilian.py:ro
     depends_on:
       - redis
     networks:

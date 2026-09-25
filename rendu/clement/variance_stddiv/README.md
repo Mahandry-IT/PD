@@ -1,18 +1,38 @@
-# Stats Enterprise — fonctions 7 & 9 du CDC
+# Stats Enterprise — fonctions 3, 7 & 9 du CDC
 
-Ce dépôt respecte strictement les signatures publiques attribuées à Clément :
+Les fonctions 7 et 9 attribuées à Clément gardent leurs signatures publiques :
 
 ```python
 def ecart_type(nombres: list[float]) -> float | None
 def variance_population(nombres: list[float]) -> float | None
 ```
 
-Les fonctions ne font aucun `print`, ne modifient pas `nombres`, retournent `None` si la liste est vide et utilisent la variance de **population** (division par `n`).
+Les fonctions ne font aucun `print`, ne modifient pas `nombres` et retournent `None` si la liste est vide. La variance est une variance de **population** (division par `n`).
+
+La moyenne propose deux beans sélectionnables : le calcul standard et la fonction Python `moyenne(lst, n)` chargée depuis le fichier d'Ilian. Pour lancer l'API hors Docker, configure son chemin local avant de démarrer :
+
+```bash
+export ILIAN_MOYENNE_FILE=/chemin/vers/PD/rendu/ilian.py
+```
+
+Dans Docker Compose depuis ce dossier, le fichier `rendu/ilian.py` du dépôt est monté en lecture seule dans les deux services API et `ILIAN_MOYENNE_FILE` pointe vers `/app/ilian.py`.
+
+Depuis le programme :
+
+```python
+from app.statistiques import moyenne_population
+
+moyenne = moyenne_population(nombres)  # mode standard
+moyenne_ilian = moyenne_population(nombres, utiliser_code_ilian=True)
+```
+
+Les deux renvoient `None` pour une liste vide. Le menu peut alors afficher `La liste est vide.` ; sinon, afficher `Moyenne : {moyenne:.2f}`.
 
 ## Test de référence
 
 Pour `[12.0, 4.5, 3.0]` :
 
+- moyenne = `6.50`
 - variance = `15.5`
 - écart type = `sqrt(15.5)` ≈ `3.937003937...`, soit `3.94` à l'affichage
 
@@ -44,6 +64,14 @@ curl -X POST http://localhost:8080/variance \
   -d '{"nombres":[12,4.5,3]}'
 ```
 
+La moyenne standard ou le bean chargé depuis le fichier d'Ilian :
+
+```bash
+curl -X POST 'http://localhost:8080/moyenne?mode=ilian' \
+  -H 'content-type: application/json' \
+  -d '{"nombres":[12,4.5,3]}'
+```
+
 ## Kubernetes
 
 Construire d'abord l'image :
@@ -66,10 +94,13 @@ Le contrat demandé est dans `openapi.yaml`.
 
 ## Intégration dans le programme du groupe
 
-Le menu n'a besoin d'importer que :
+Le menu peut importer les fonctions qui lui sont nécessaires :
 
 ```python
-from app.statistiques import ecart_type, variance_population
+from app.statistiques import ecart_type, moyenne_population, variance_population
+
+moyenne = moyenne_population(nombres)  # standard
+moyenne_avec_ilian = moyenne_population(nombres, utiliser_code_ilian=True)
 ```
 
-Le reste de la plomberie est volontairement invisible pour respecter le CDC.
+Le `main.py` expose aussi `moyenne_population_enterprise(nombres, mode="ilian")` pour appeler l'API. Le bean extrait et charge uniquement `moyenne(lst, n)` au premier appel du mode Ilian ; le fichier complet n'est pas importé, car il lance le pipeline C/C++ et Docker au niveau global et sa conversion en entiers perd la précision des décimaux. Ne pointe `ILIAN_MOYENNE_FILE` que vers le fichier source de confiance d'Ilian. Dans Kubernetes, il faut aussi monter ce fichier dans les pods API pour activer le mode Ilian.

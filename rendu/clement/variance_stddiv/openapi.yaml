@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Clement Enterprise Population Statistics API
   version: 1.0.0
-  description: API HTTP optionnelle autour des fonctions 7 et 9 du cahier des charges.
+  description: API HTTP optionnelle autour des fonctions 3, 7 et 9 du cahier des charges.
 servers:
   - url: http://localhost:8080
 paths:
@@ -37,6 +37,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatisticsResponse'
+        '422':
+          description: Les nombres sont invalides ou le résultat dépasse la plage numérique
   /ecart-type:
     post:
       summary: Calcule l'ecart type de population
@@ -54,6 +56,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatisticsResponse'
+        '422':
+          description: Les nombres sont invalides ou le résultat dépasse la plage numérique
+  /moyenne:
+    post:
+      summary: Calcule la moyenne
+      operationId: moyennePopulation
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [standard, ilian]
+            default: standard
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatisticsRequest'
+      responses:
+        '200':
+          description: Resultat du calcul
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticsResponse'
+        '422':
+          description: Les nombres sont invalides ou le résultat dépasse la plage numérique
+        '503':
+          description: Le fichier Ilian est absent ou invalide pour le mode ilian
 components:
   schemas:
     StatisticsRequest:
@@ -72,9 +105,12 @@ components:
       properties:
         operation:
           type: string
-          enum: [variance_population, ecart_type]
+          enum: [moyenne_population, variance_population, ecart_type]
         resultat:
           type: [number, 'null']
           format: double
         cached:
           type: boolean
+        mode:
+          type: [string, 'null']
+          enum: [standard, ilian, null]
